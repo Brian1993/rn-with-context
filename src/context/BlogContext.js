@@ -1,15 +1,17 @@
 import createDataContext from './createDataContext'
-
+import jsonSever from '../api/jsonServer'
 
 const blogReducer = (state, { type, payload }) => {
   switch (type) {
+    case 'GET_BLOG_POSTS':
+      return payload
     case 'ADD_BLOG_POST':
       const { title, content } = payload
       return [
         ...state, 
         { 
           id: Math.floor(Math.random() * 9999), 
-          title,
+          title, 
           content 
         },
       ]
@@ -19,6 +21,13 @@ const blogReducer = (state, { type, payload }) => {
       return state.map(blogPost => blogPost.id === payload.id ? payload : blogPost)
     default:
       return state
+  }
+}
+
+const getBlogPosts = dispatch => {
+  return async () => {
+    const { data } = await jsonSever.get('/blogposts')
+    dispatch({ type: 'GET_BLOG_POSTS', payload: data })
   }
 }
 
@@ -47,6 +56,6 @@ const mockData = {
 
 export const { Context, Provider } = createDataContext(
   blogReducer,
-  { addBlogPost, deleteBlogPost, editBlogPost },
-  [mockData]
+  { addBlogPost, deleteBlogPost, editBlogPost, getBlogPosts },
+  []
 )
